@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>QR Code Login</title>
+</head>
+<body>
+    <h1>Login with QR Code</h1>
+    <form id="login-form">
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" required>
+        <br>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required>
+        <br>
+        <button type="button" onclick="generateQR()">Generate QR Code</button>
+    </form>
+    <br>
+    <img id="qr-code" src="" alt="QR Code Login" style="display: none;"/>
+    
+    <script>
+        function generateQR() {
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+            
+            if (username && password) {
+                const qrCodeImage = document.getElementById("qr-code");
+                
+                // Tạo URL QR Code từ username và password
+                qrCodeImage.src = `/generate_qr/${username}/${password}`;
+                qrCodeImage.style.display = "block";
+            } else {
+                alert("Please enter both username and password.");
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.1/socket.io.js"></script>
+</head>
+<body>
+    <h1>Welcome, {{ username }}</h1>
+    <a href="{{ url_for('logout') }}">Logout</a>
+    <h2>Select a user to chat:</h2>
+    <select id="recipient">
+        {% for user in users %}
+            {% if user != username %}
+                <option value="{{ user }}">{{ user }}</option>
+            {% endif %}
+        {% endfor %}
+    </select>
+    <div id="messages"></div>
+    <input type="text" id="messageInput" placeholder="Enter message">
+    <button onclick="sendMessage()">Send</button>
+
+    <script>
+        const socket = io.connect();
+        const username = "{{ username }}";
+        const recipientSelect = document.getElementById('recipient');
+        const messagesDiv = document.getElementById('messages');
+
+        // Join room
+        socket.emit('join', { username: username });
+
+        // Nhận tin nhắn
+        socket.on('receive_message', function(data) {
+            const messageDiv = document.createElement('div');
+            messageDiv.textContent = `${data.sender}: ${data.message}`;
+            messagesDiv.appendChild(messageDiv);
+        });
+
+        // Gửi tin nhắn
+        function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const recipient = recipientSelect.value;
+            const message = messageInput.value;
+            socket.emit('send_message', { sender: username, recipient: recipient, message: message });
+            messageInput.value = '';
+        }
+    </script>
+</body>
+</html>

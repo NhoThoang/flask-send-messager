@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Floating Chat Box</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <div id="chat-box" class="floating-box">
+        <div id="chat-header" class="chat-header">
+            <span>Chat</span>
+            <button onclick="toggleChat()">X</button>
+        </div>
+        <div id="chat-content" class="chat-content">
+            <!-- Nội dung chat sẽ được hiển thị ở đây -->
+            <div class="message">Hello! How can I help you?</div>
+            <div class="message">Hi, I have a question.</div>
+        </div>
+        <input type="text" id="message-input" placeholder="Type a message..." />
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

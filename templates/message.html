@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Box with Session</title>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        #chat-box { height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
+        .message { margin: 5px 0; }
+        .username { font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div id="chat-box"></div>
+    <input type="text" id="username" placeholder="Your name">
+    <input type="text" id="message" placeholder="Type your message">
+    <button id="send-btn">Send</button>
+
+    <script>
+        const socket = io();
+        const chatBox = document.getElementById('chat-box');
+
+        // Khi nhận tin nhắn mới
+        socket.on('receive_message', function(data) {
+            const newMessage = document.createElement('div');
+            newMessage.classList.add('message');
+            newMessage.innerHTML = `<span class="username">${data.username}:</span> ${data.message}`;
+            chatBox.appendChild(newMessage);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        });
+
+        // Gửi tin nhắn
+        document.getElementById('send-btn').addEventListener('click', function() {
+            const username = document.getElementById('username').value || 'Anonymous';
+            const message = document.getElementById('message').value;
+            if (message) {
+                socket.emit('send_message', { username, message });
+                document.getElementById('message').value = ''; // Xoá input message
+            }
+        });
+
+        // Tải lại tin nhắn cũ từ session
+        fetch('/get_messages')
+            .then(response => response.json())
+            .then(data => {
+                data.messages.forEach(msg => {
+                    const oldMessage = document.createElement('div');
+                    oldMessage.classList.add('message');
+                    oldMessage.innerHTML = `<span class="username">${msg.username}:</span> ${msg.message}`;
+                    chatBox.appendChild(oldMessage);
+                });
+                chatBox.scrollTop = chatBox.scrollHeight;
+            });
+    </script>
+</body>
+</html>

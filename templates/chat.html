@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+</head>
+<body>
+    <h1>Welcome, {{ username }}</h1>
+    <a href="/logout">Logout</a>
+    <h2>Users:</h2>
+    <ul>
+        {% for user in users %}
+            {% if user != username %}
+                <li>
+                    <a href="/chat?chat_with={{ user }}">{{ user }}</a>
+                </li>
+            {% endif %}
+        {% endfor %}
+    </ul>
+
+    {% if chat_with %}
+        <h3>Chat with {{ chat_with }}</h3>
+        <div id="chat-messages">
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+        <form method="POST" id="chat-form">
+            <input type="hidden" name="recipient" value="{{ chat_with }}">
+            <input type="text" id="message-input" name="message" placeholder="Type a message..." required>
+            <button type="submit">Send</button>
+        </form>
+    {% endif %}
+
+    <script>
+        const chatWith = "{{ chat_with }}";
+        const chatMessages = document.getElementById('chat-messages');
+
+        // Hàm thêm tin nhắn mới vào giao diện
+        function appendMessage(message) {
+            const p = document.createElement('p');
+            p.textContent = message;
+            chatMessages.appendChild(p);
+        }
+
+        // Lấy tin nhắn mới định kỳ
+        function fetchMessages() {
+            fetch(`/get_messages?chat_with=${chatWith}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.messages) {
+                        chatMessages.innerHTML = '';
+                        data.messages.forEach(msg => appendMessage(msg));
+                    }
+                });
+        }
+
+        // Gửi tin nhắn khi nhấn "Send"
+        const form = document.getElementById('chat-form');
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(form);
+            fetch('/chat', {
+                method: 'POST',
+                body: formData
+            }).then(() => {
+                document.getElementById('message-input').value = '';
+                fetchMessages(); // Refresh messages ngay sau khi gửi
+            });
+        });
+
+        // Gọi fetchMessages mỗi 2 giây
+        setInterval(fetchMessages, 2000);
+    </script>
+</body>
+</html>
